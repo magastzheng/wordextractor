@@ -1,0 +1,7 @@
+########### CIM Java Project git ignore file ###########
+*.swp
+*~
+*.text
+*.swo
+*.log
+*.exe
