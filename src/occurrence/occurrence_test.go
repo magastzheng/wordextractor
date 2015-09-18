@@ -63,5 +63,5 @@ func LogSegments(segments []sego.Segment) {
         outBuf.WriteByte('\n')
     }
 
-    util.WriteFile("../data/segment.txt", outBuf.String())
+    util.WriteFile("../data/segment.log", outBuf.String())
 }

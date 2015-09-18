@@ -118,7 +118,7 @@ func (o *Occurrence) Compute() {
         keyFirstP := stats.Probability(firstTotal, o.totalTerm)
         keySecondP := stats.Probability(secondTotal, o.totalTerm)
         mi := stats.CalcMI(keyP, keyFirstP, keySecondP)
-        score := mi * float32(len(key) * pt.GetFrequency())
+        score := mi * float32(pt.GetFrequency())
         pt.SetMI(mi)
         pt.SetScore(score)
 
@@ -158,7 +158,7 @@ func (o *Occurrence) Output() {
     //}
 
     //fmt.Println(str)
-    util.WriteFile("../data/data.txt", outBuf.String())
+    util.WriteFile("../data/data.log", outBuf.String())
 }
 
 func NewOccurrence() *Occurrence{
