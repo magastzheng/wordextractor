@@ -5,3 +5,4 @@
 *.swo
 *.log
 *.exe
+.DS_Store

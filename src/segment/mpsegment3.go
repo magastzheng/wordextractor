@@ -108,6 +108,25 @@ func getPrev(vec_cd []*Candidate) {
     util.WriteFile("../data/origin_all_in_getprev.txt", s)
 }
 
+func reverse(source []*Candidate) []*Candidate {
+    size := len(source)
+    dest := make([]*Candidate, size)
+    for i := 0; i < size; i++ {
+        dest[i] = source[size - 1 - i]
+    }
+
+    return dest
+}
+
+func outputSegment(segments []*Candidate) {
+    out := ""
+    for _, s := range segments {
+        out += s.Word + "||"
+    }
+
+    fmt.Println(out)
+}
+
 func SegmentSentence_MP(sequence string, d *Dictionary) string {
     in := []rune(sequence)
     runeLen := len(in)
@@ -135,12 +154,17 @@ func SegmentSentence_MP(sequence string, d *Dictionary) string {
         }
     }
     
+    source := make([]*Candidate, 0)
     out := ""
     for i := min_id; i >= 0; i = vec_cd[i].BestPrev {
         start := vec_cd[i].Start
         end := start + vec_cd[i].Length
+        source = append(source, vec_cd[i])
         out = string(in[start: end]) + "::" + out
     }
+    dest := reverse(source)
 
+    //fmt.Println(dest)
+    outputSegment(dest)
     return out
 }
