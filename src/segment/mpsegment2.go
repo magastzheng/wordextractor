@@ -2,9 +2,9 @@ package segment
 
 //http://book.51cto.com/art/201106/269048.htm
 
-import (
-    "fmt"
-)
+//import (
+//    "fmt"
+//)
 
 //word as edge
 type EdgeNode struct {
@@ -20,12 +20,13 @@ type VexNode struct {
     linkedlist  []EdgeNode //the linklist connect with
 }
 
-func NewToken(from, to int, word string) *CnToken {
-    return & CnToken{
-        termText: word,
-        start: from,
-        end: to,
-    }
-}
+//func NewToken(from, to int, word string) *CnToken {
+//    fmt.Println("New Token")
+//    return & CnToken{
+//        termText: word,
+//        start: from,
+//        end: to,
+//    }
+//}
 
 
