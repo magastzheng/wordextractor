@@ -7,7 +7,8 @@ import (
     "util"
     "bytes"
     "sort"
-    "github.com/huichen/sego"
+	"segment"
+    //"github.com/huichen/sego"
 )
 
 const (
@@ -21,10 +22,11 @@ type Occurrence struct {
    totalPair int
 }
 
-func (o *Occurrence) statistics(segments []sego.Segment) {
+func (o *Occurrence) statistics(segments []*segment.Segment) {
     for _, seg := range segments {
-        token := seg.Token()
-        key := string(token.Text())
+        //token := seg.Token()
+        //key := string(token.Text())
+		key := seg.Text()
         count, ok := o.wordCountMap[key]
         if ok {
             o.wordCountMap[key] = count+1
@@ -36,11 +38,12 @@ func (o *Occurrence) statistics(segments []sego.Segment) {
     }
 }
 
-func (o *Occurrence) filterSegment(segments []sego.Segment, door int) []sego.Segment {
-    newSegs := make([]sego.Segment, 0)
+func (o *Occurrence) filterSegment(segments []*segment.Segment, door int) []*segment.Segment {
+    newSegs := make([]*segment.Segment, 0)
     for _, seg := range segments {
-        token := seg.Token()
-        key := string(token.Text())
+        //token := seg.Token()
+        //key := string(token.Text())
+		key := seg.Text()
         count, ok := o.wordCountMap[key]
         if ok && count > door{
             newSegs = append(newSegs, seg)
@@ -51,9 +54,9 @@ func (o *Occurrence) filterSegment(segments []sego.Segment, door int) []sego.Seg
 }
 
 
-func (o *Occurrence) addPair(segments []sego.Segment) {
+func (o *Occurrence) addPair(segments []*segment.Segment) {
     
-    var first, second sego.Segment
+    var first, second *segment.Segment
     for i, count := 1, len(segments); i < count; i++ {
         fmt.Println(i)
         first = segments[i - 1]
@@ -64,8 +67,10 @@ func (o *Occurrence) addPair(segments []sego.Segment) {
             continue
         }
          
-        firstKey := first.Token().Text()
-        secondKey := second.Token().Text()
+        //firstKey := first.Token().Text()
+        //secondKey := second.Token().Text()
+		firstKey := first.Text()
+        secondKey := second.Text()
         key := firstKey+secondKey
         
         if v, ok := o.pairMap[key]; ok {
@@ -92,7 +97,7 @@ func (o *Occurrence) sort() []term.PairTerm {
     return pairTerms
 }
 
-func (o *Occurrence) AddSegments(segments []sego.Segment) {
+func (o *Occurrence) AddSegments(segments []*segment.Segment) {
     o.statistics(segments)
     newsegs := o.filterSegment(segments, 3)
     //fmt.Println(newsegs)
@@ -126,15 +131,15 @@ func (o *Occurrence) Compute() {
     }
 }
 
-func (o *Occurrence) OutputSegments(segments []sego.Segment) {
+func (o *Occurrence) OutputSegments(segments []*segment.Segment) {
     for i, seg := range segments {
         fmt.Print("#", i, "|")
         //if seg != nil {
             fmt.Print(seg.Start(), seg.End())
-            if seg.Token() != nil {
-                fmt.Print("Text: ", seg.Token().Text())
+            //if seg.Token() != nil {
+                fmt.Print("Text: ", seg.Text())
                 fmt.Println()
-            }
+            //}
         //}
         break
     }
