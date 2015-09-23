@@ -3,7 +3,7 @@ package segment
 import (
     "fmt"
     "math"
-    "util"
+    //"util"
 )
 
 //const (
@@ -34,15 +34,15 @@ func Output(vec_cd []*Candidate) string {
     return out
 }
 
-func getTempWords(sequence string, d *Dictionary) []*Candidate {
+func getTempWords(runeBuf []rune, d *Dictionary) []*Candidate {
     freq := 0
-    runeBuf := []rune(sequence)
+    //runeBuf := []rune(sequence)
     totalLen := len(runeBuf)
     word := ""
     vec_cd := make([]*Candidate, 0)
     for i := 0; i < totalLen; i++ {
         for length := 1; length < MaxWordLength && i + length <= totalLen; length++ {
-            fmt.Println(i, length)
+            //fmt.Println(i, length)
             word = string(runeBuf[i: i+length])
             freq = d.FindWord(word)
 
@@ -72,7 +72,7 @@ func getTempWords(sequence string, d *Dictionary) []*Candidate {
         }
     }
     
-    fmt.Println("Total candidates: ", len(vec_cd))
+    //fmt.Println("Total candidates: ", len(vec_cd))
     return vec_cd
 }
 
@@ -104,8 +104,8 @@ func getPrev(vec_cd []*Candidate) {
         }
     }
 
-    s := Output(vec_cd)
-    util.WriteFile("../data/origin_all_in_getprev.txt", s)
+    //s := Output(vec_cd)
+    //util.WriteFile("../data/origin_all_in_getprev.txt", s)
 }
 
 func reverse(source []*Candidate) []*Candidate {
@@ -133,15 +133,15 @@ func SegmentSentence_MP(sequence string, d *Dictionary) string {
     min_id := -1
     
     //get all candidate
-    vec_cd := getTempWords(sequence, d)
+    vec_cd := getTempWords(in, d)
     
-    s := Output(vec_cd)
-    util.WriteFile("../data/origin_all_can.txt", s)
+    //s := Output(vec_cd)
+    //util.WriteFile("../data/origin_all_can.txt", s)
 
     getPrev(vec_cd)
     
-    s = Output(vec_cd)
-    util.WriteFile("../data/origin_all_after_getprev.txt", s)
+    //s = Output(vec_cd)
+    //util.WriteFile("../data/origin_all_after_getprev.txt", s)
 
     size := len(vec_cd)
     for i := 0; i < size; i++ {
@@ -162,9 +162,59 @@ func SegmentSentence_MP(sequence string, d *Dictionary) string {
         source = append(source, vec_cd[i])
         out = string(in[start: end]) + "::" + out
     }
-    dest := reverse(source)
+    //dest := reverse(source)
 
     //fmt.Println(dest)
-    outputSegment(dest)
+    //outputSegment(dest)
     return out
+}
+
+func SegmentSentenceMP(buf []rune, pos int, d *Dictionary) []*Segment {
+    runeLen := len(buf)
+    min_id := -1
+    
+    //get all candidate
+    vec_cd := getTempWords(buf, d)
+    
+    //s := Output(vec_cd)
+    //util.WriteFile("../data/origin_all_can.txt", s)
+
+    getPrev(vec_cd)
+    
+    //s = Output(vec_cd)
+    //util.WriteFile("../data/origin_all_after_getprev.txt", s)
+
+    size := len(vec_cd)
+    for i := 0; i < size; i++ {
+        if vec_cd[i].Start + vec_cd[i].Length == runeLen {
+            //The current word is the tail of sequence
+            if min_id == -1 || vec_cd[i].SumFee < vec_cd[min_id].SumFee {
+                
+                min_id = i;
+            }
+        }
+    }
+    
+    source := make([]*Candidate, 0)
+    for i := min_id; i >= 0; i = vec_cd[i].BestPrev {
+        source = append(source, vec_cd[i])
+    }
+    dest := reverse(source)
+    
+    segments := make([]*Segment, len(dest))
+    for i := 0; i < len(dest); i++ {
+        start := dest[i].Start + pos
+        end := start + dest[i].Length
+        word := dest[i].Word
+
+        seg := &Segment{
+            start: start,
+            end: end,
+            text: word,
+        }
+
+        segments[i] = seg
+    }
+
+    return segments
 }

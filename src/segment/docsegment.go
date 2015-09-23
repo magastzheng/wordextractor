@@ -19,6 +19,10 @@ type Sentence struct {
     end     int
 }
 
+func (s *Sentence) Buffer() []rune {
+    return s.text
+}
+
 func (s *Sentence) Text() string {
     return string(s.text)
 }

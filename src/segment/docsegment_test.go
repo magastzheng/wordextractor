@@ -25,3 +25,30 @@ func Test_SplitSentence(t *testing.T) {
     //    fmt.Println(s.ToString())
     //}
 }
+
+func Test_SplitDocument(t *testing.T){
+    article := util.ReadFile("../data/testdata/125-1.txt")
+    fmt.Println(article)
+    article = segment.DeleteSpaceChar(article)
+    sign := dict.NewSign("../data/dictionary/sign.txt")
+    sentences := segment.SplitSentence([]rune(article), sign)
+    d := segment.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    fmt.Println("Start====")
+
+    allsegs := make([]*segment.Segment, 0)
+    for _, sentence := range sentences {
+        segments := segment.SegmentSentenceMP(sentence.Buffer(), sentence.Start(), d)
+        //fmt.Println(len(segments))
+        //fmt.Println(segments)
+        //str := ""
+        //for _, seg := range segments {
+        //    str += seg.ToString()
+        //}
+
+        //fmt.Println(sentence.Start(), str)
+
+        allsegs = append(allsegs, segments ...)
+    }
+
+    fmt.Println(len(allsegs))
+}

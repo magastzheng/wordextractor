@@ -1,7 +1,8 @@
 package segment
 
 import (
-    "dict"
+    //"dict"
+    "fmt"
 )
 
 //a segment in text
@@ -13,7 +14,8 @@ type Segment struct {
     end int
 
     //segment information
-    token *dict.Token
+    //token *dict.Token
+    text string
 }
 
 func (s *Segment) Start () int {
@@ -24,6 +26,11 @@ func (s *Segment) End() int {
     return s.end
 }
 
-func (s *Segment) Token() *dict.Token {
-    return s.token
+func (s *Segment) Text() string {
+    return s.text
+}
+
+func (s *Segment) ToString() string {
+    format := "%d\t%d\t%s\n"
+    return fmt.Sprintf(format, s.start, s.end, s.text)
 }
