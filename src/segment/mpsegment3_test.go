@@ -5,10 +5,11 @@ import (
     "segment"
     "testing"
     "util"
+	"dict"
 )
 
 func Test_MPSegment(t *testing.T) {
-    d := segment.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
     text := util.ReadFile("../data/testdata/125-1.txt")
 
     out := segment.SegmentSentence_MP(text, d)
@@ -16,9 +17,9 @@ func Test_MPSegment(t *testing.T) {
 }
 
 func Test_SegmentSentenceMP(t *testing.T) {
-    d := segment.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
     text := util.ReadFile("../data/testdata/125-1.txt")
-    segments := segment.SegmentSentenceMP([]rune(text), d)
-    str := segment.Output(segments)
-    fmt.Println(str)
+    segments := segment.SegmentSentenceMP([]rune(text), 0, d)
+    //str := segment.Output(segments)
+    fmt.Println(len(segments))
 }

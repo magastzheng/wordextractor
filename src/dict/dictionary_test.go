@@ -1,13 +1,13 @@
-package segment_test
+package dict_test
 
 import (
     "fmt"
-    "segment"
+    "dict"
     "testing"
 )
 
 func Test_Dictionary(t *testing.T) {
-    d := segment.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
     freq := d.FindWord("大学生")
     fmt.Println(freq)
 }

@@ -3,6 +3,7 @@ package segment
 import (
     "fmt"
     "math"
+    "dict"
     //"util"
 )
 
@@ -34,14 +35,14 @@ func Output(vec_cd []*Candidate) string {
     return out
 }
 
-func getTempWords(runeBuf []rune, d *Dictionary) []*Candidate {
+func getTempWords(runeBuf []rune, d *dict.Dictionary) []*Candidate {
     freq := 0
     //runeBuf := []rune(sequence)
     totalLen := len(runeBuf)
     word := ""
     vec_cd := make([]*Candidate, 0)
     for i := 0; i < totalLen; i++ {
-        for length := 1; length < MaxWordLength && i + length <= totalLen; length++ {
+        for length := 1; length < dict.MaxWordLength && i + length <= totalLen; length++ {
             //fmt.Println(i, length)
             word = string(runeBuf[i: i+length])
             freq = d.FindWord(word)
@@ -127,7 +128,7 @@ func outputSegment(segments []*Candidate) {
     fmt.Println(out)
 }
 
-func SegmentSentence_MP(sequence string, d *Dictionary) string {
+func SegmentSentence_MP(sequence string, d *dict.Dictionary) string {
     in := []rune(sequence)
     runeLen := len(in)
     min_id := -1
@@ -169,7 +170,7 @@ func SegmentSentence_MP(sequence string, d *Dictionary) string {
     return out
 }
 
-func SegmentSentenceMP(buf []rune, pos int, d *Dictionary) []*Segment {
+func SegmentSentenceMP(buf []rune, pos int, d *dict.Dictionary) []*Segment {
     runeLen := len(buf)
     min_id := -1
     

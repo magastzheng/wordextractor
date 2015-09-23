@@ -64,7 +64,6 @@ func NewDocument(filename string) *Document {
 }
 
 func IsSpace(ch rune) bool {
-    //return ch == ' '
     return unicode.IsSpace(ch)
 }
 
@@ -83,7 +82,7 @@ func SplitSentence(buf []rune, d *dict.Sign) []*Sentence {
     for i, count := 0, len(buf); i < count; i++ {
         current := string(buf[i]) 
         if IsSpace(buf[i]) {
-            fmt.Println(i, start)
+            //fmt.Println(i, start)
             if i == start {
                 start++
             }
@@ -105,4 +104,19 @@ func SplitSentence(buf []rune, d *dict.Sign) []*Sentence {
     }
 
     return sentences
+}
+
+func SegmentDoc(text string, sign *dict.Sign, d *dict.Dictionary) []*Segment {
+    text = DeleteSpaceChar(text)
+    //sign := dict.NewSign("../data/dictionary/sign.txt")
+    sentences := SplitSentence([]rune(text), sign)
+    //d := NewDictionary("../data/dictionary/sogoudictionary.txt")
+
+    allsegs := make([]*Segment, 0)
+    for _, sentence := range sentences {
+        segments := SegmentSentenceMP(sentence.Buffer(), sentence.Start(), d)
+        allsegs = append(allsegs, segments ...)
+    }
+
+    return allsegs
 }

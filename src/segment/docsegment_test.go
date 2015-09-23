@@ -11,12 +11,12 @@ import (
 func Test_NewDocument(t *testing.T) {
     doc := segment.NewDocument("../data/testdata/125-1.txt")
     fmt.Println(doc.Filename())
-    fmt.Println(string(doc.Buffer()))
+    //fmt.Println(string(doc.Buffer()))
 }
 
 func Test_SplitSentence(t *testing.T) {
     article := util.ReadFile("../data/testdata/125-1.txt")
-    fmt.Println(article)
+    //fmt.Println(article)
     article = segment.DeleteSpaceChar(article)
     d := dict.NewSign("../data/dictionary/sign.txt")
     sentences := segment.SplitSentence([]rune(article), d)
@@ -28,11 +28,11 @@ func Test_SplitSentence(t *testing.T) {
 
 func Test_SplitDocument(t *testing.T){
     article := util.ReadFile("../data/testdata/125-1.txt")
-    fmt.Println(article)
+    //fmt.Println(article)
     article = segment.DeleteSpaceChar(article)
     sign := dict.NewSign("../data/dictionary/sign.txt")
     sentences := segment.SplitSentence([]rune(article), sign)
-    d := segment.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
     fmt.Println("Start====")
 
     allsegs := make([]*segment.Segment, 0)
@@ -49,6 +49,17 @@ func Test_SplitDocument(t *testing.T){
 
         allsegs = append(allsegs, segments ...)
     }
+
+    fmt.Println(len(allsegs))
+}
+
+
+func Test_Segment(t *testing.T){
+    article := util.ReadFile("../data/testdata/125-1.txt")
+	sign := dict.NewSign("../data/dictionary/sign.txt")
+    //sentences := SplitSentence([]rune(text), sign)
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
+    allsegs := segment.SegmentDoc(article, sign, d)
 
     fmt.Println(len(allsegs))
 }
