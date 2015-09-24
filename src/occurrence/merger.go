@@ -85,6 +85,7 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
          pairTerms = append(pairTerms, terms ...)
          minFreq--
          minScore = 0.8 * minScore
+         segments = MergeSegment(segments, pairTerms)
     }
 
     return pairTerms

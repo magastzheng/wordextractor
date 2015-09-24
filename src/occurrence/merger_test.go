@@ -62,3 +62,17 @@ func Test_Merge(t *testing.T) {
     str := term.GetPairTermStr(pairTerms)
     util.WriteFile("../data/test-125-2-merge-merge.log", str)
 }
+
+func Test_Merge125(t *testing.T) {
+    sign := dict.NewSign("../data/dictionary/sign.txt")
+    stop := dict.NewSign("../data/dictionary/stopwords.txt")
+    d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
+
+    article := util.ReadFile("../data/testdata/125.txt")
+    allsegs := segment.SegmentDoc(article, sign, d)
+    allsegs = occurrence.FilterSegment(allsegs, stop) 
+    
+    pairTerms := occurrence.Merge(allsegs, 4, 15.0)
+    str := term.GetPairTermStr(pairTerms)
+    util.WriteFile("../data/test-125-merge-merge.log", str)
+}
