@@ -4,6 +4,7 @@ import (
     "fmt"
     "math"
     "dict"
+    "unicode"
     //"util"
 )
 
@@ -35,41 +36,112 @@ func Output(vec_cd []*Candidate) string {
     return out
 }
 
+func IsLetter(ch rune) bool {
+    return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')
+}
+
+func getFee(freq, totalFreq int) float32 {
+    normal := float64(freq * 1 + 1)/ float64(totalFreq)
+    fee := float32(-math.Log2(float64(normal)))
+    return fee
+}
+
+func newCandidate(word string, start int, length int, fee float32, freq int) *Candidate {
+    cand := &Candidate {
+        Start: start,
+        Length: length,
+        Word: word,
+        Fee: fee,
+        SumFee: 0.0,
+        Freq: freq,
+    }
+
+    return cand
+}
+
 func getTempWords(runeBuf []rune, d *dict.Dictionary) []*Candidate {
     freq := 0
     //runeBuf := []rune(sequence)
     totalLen := len(runeBuf)
     word := ""
     vec_cd := make([]*Candidate, 0)
+    
+    totalFreq := d.FreqAll()
+    isNumber := false
+    numberStart := 0
+    isLetter := false
+    letterStart := 0
     for i := 0; i < totalLen; i++ {
-        for length := 1; length < dict.MaxWordLength && i + length <= totalLen; length++ {
-            //fmt.Println(i, length)
-            word = string(runeBuf[i: i+length])
-            freq = d.FindWord(word)
-
-            if length > 1 && freq == -1 {
-                //More than one character and cannot find in dictionary
-                //don't sign in
-                continue
-            }
-
-            if freq == -1 {
-                //single character and cannot find in dictionary
-                freq = 0
+        ch := runeBuf[i]
+        if unicode.IsDigit(ch) {
+            //handle digit
+            if !isNumber {
+                numberStart = i
+                isNumber = true
             }
             
-            normal := float64(freq * 1 + 1)/ float64(d.FreqAll())
-            fee := float32(-math.Log2(float64(normal)))
-            cand := &Candidate {
-                Start: i,
-                Length: length,
-                Word: word,
-                Fee: fee,
-                SumFee: 0.0,
-                Freq: freq,
+            end := i + 1
+            isTail := false
+            if i + 1 < totalLen {
+                if !unicode.IsDigit(runeBuf[end]) {
+                    isTail = true
+                }
+            } else {
+                isTail = true
             }
 
-            vec_cd = append(vec_cd, cand)
+            if isTail {
+                isNumber = false
+                word = string(runeBuf[numberStart: end])
+                fee := getFee(0, totalFreq)
+                cand := newCandidate(word, numberStart, end - numberStart, fee, freq)
+                vec_cd = append(vec_cd, cand)
+            }
+        } else if IsLetter(ch) {
+            //handle English characters
+            if !isLetter {
+                letterStart = i
+                isLetter = true
+            }
+            
+            end := i + 1
+            isTail := false
+            if i + 1 < totalLen {
+                if !IsLetter(runeBuf[end]) {
+                    isTail = true
+                }
+            } else {
+                isTail = true
+            }
+
+            if isTail {
+                isLetter = false
+                word = string(runeBuf[letterStart: end])
+                fee := getFee(0, totalFreq)
+                cand := newCandidate(word, letterStart, end - letterStart, fee, freq)
+                vec_cd = append(vec_cd, cand)
+            }
+        } else {
+            for length := 1; length < dict.MaxWordLength && i + length <= totalLen; length++ {
+                //fmt.Println(i, length)
+                word = string(runeBuf[i: i+length])
+                freq = d.FindWord(word)
+            
+                if length > 1 && freq == -1 {
+                    //More than one character and cannot find in dictionary
+                    //don't sign in
+                    continue
+                }
+
+                if freq == -1 {
+                    //single character and cannot find in dictionary
+                    freq = 0
+                }
+            
+                fee := getFee(freq, totalFreq)
+                cand := newCandidate(word, i, length, fee, freq)
+                vec_cd = append(vec_cd, cand)
+            }
         }
     }
     
@@ -178,12 +250,12 @@ func SegmentSentenceMP(buf []rune, pos int, d *dict.Dictionary) []*Segment {
     vec_cd := getTempWords(buf, d)
     
     //s := Output(vec_cd)
-    //util.WriteFile("../data/origin_all_can.txt", s)
+    //util.WriteFile("../data/origin_all_can.log", s)
 
     getPrev(vec_cd)
     
     //s = Output(vec_cd)
-    //util.WriteFile("../data/origin_all_after_getprev.txt", s)
+    //util.WriteFile("../data/origin_all_after_getprev.log", s)
 
     size := len(vec_cd)
     for i := 0; i < size; i++ {
@@ -216,6 +288,14 @@ func SegmentSentenceMP(buf []rune, pos int, d *dict.Dictionary) []*Segment {
 
         segments[i] = seg
     }
+    
+    //final := ""
+    //for _, seg := range segments {
+    //    final += seg.ToString()
+    //}
+    
+    //final += fmt.Sprintf(": %d", len(segments))
+    //util.WriteFile("../data/origin_all_after_final.log", final)
 
     return segments
 }

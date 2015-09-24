@@ -62,4 +62,11 @@ func Test_Segment(t *testing.T){
     allsegs := segment.SegmentDoc(article, sign, d)
 
     fmt.Println(len(allsegs))
+    final := ""
+    for _, seg := range allsegs {
+        final += seg.ToString()
+    }
+    
+    final += fmt.Sprintf(": %d", len(allsegs))
+    util.WriteFile("../data/docsegment_test_125-1.log", final)
 }
