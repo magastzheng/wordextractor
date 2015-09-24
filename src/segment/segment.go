@@ -30,7 +30,24 @@ func (s *Segment) Text() string {
     return s.text
 }
 
+func NewSegment(text string, start int, end int) *Segment {
+	return &Segment{
+		start: start,
+		end: end,
+		text: text,
+	}
+}
+
 func (s *Segment) ToString() string {
     format := "%d\t%d\t%s\n"
     return fmt.Sprintf(format, s.start, s.end, s.text)
+}
+
+func GetSegmentStr(segments []*Segment) string {
+    str := ""
+    for _, seg := range segments {
+        str += seg.ToString()
+    }
+
+    return str
 }

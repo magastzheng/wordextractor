@@ -1,5 +1,9 @@
 package term
 
+import (
+    "fmt"
+)
+
 type Term struct {
     key string
     frequency int
@@ -98,4 +102,16 @@ func NewPairTerm(key string, first, second string) *PairTerm {
         mi: 0.0,
         score: 0.0,
     }
+}
+
+func GetPairTermStr(pairTerms []*PairTerm) string {
+    format := "%s\t%s\t%s\t%d\n"
+    str := ""
+    for _, pt := range pairTerms {
+        s := fmt.Sprintf(format, pt.key, pt.first, pt.second, pt.frequency)
+        str += s
+        //fmt.Print(s)
+    }
+
+    return str
 }

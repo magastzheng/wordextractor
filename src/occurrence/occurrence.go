@@ -8,6 +8,7 @@ import (
     "bytes"
     "sort"
 	"segment"
+    //"dict"
     //"github.com/huichen/sego"
 )
 
@@ -44,6 +45,10 @@ func (o *Occurrence) filterSegment(segments []*segment.Segment, door int) []*seg
         //token := seg.Token()
         //key := string(token.Text())
 		key := seg.Text()
+        //if stopdict.IsContain(key) {
+        //    continue
+        //}
+
         count, ok := o.wordCountMap[key]
         if ok && count > door{
             newSegs = append(newSegs, seg)
@@ -52,7 +57,6 @@ func (o *Occurrence) filterSegment(segments []*segment.Segment, door int) []*seg
 
     return newSegs
 }
-
 
 func (o *Occurrence) addPair(segments []*segment.Segment) {
     
@@ -97,9 +101,9 @@ func (o *Occurrence) sort() []term.PairTerm {
     return pairTerms
 }
 
-func (o *Occurrence) AddSegments(segments []*segment.Segment) {
+func (o *Occurrence) AddSegments(segments []*segment.Segment, minFreq int) {
     o.statistics(segments)
-    newsegs := o.filterSegment(segments, 3)
+    newsegs := o.filterSegment(segments, minFreq)
     //fmt.Println(newsegs)
     //o.OutputSegments(newsegs)
     //fmt.Println(newsegs[0])
@@ -110,6 +114,8 @@ func (o *Occurrence) Compute() {
     
     var keyTotal, firstTotal, secondTotal int
     var ok bool
+
+    fmt.Println("Compute: ", len(o.pairMap))
     for key, pt := range o.pairMap {
         keyTotal = pt.GetFrequency()
         if firstTotal, ok = o.wordCountMap[pt.First()]; !ok {
@@ -126,9 +132,31 @@ func (o *Occurrence) Compute() {
         score := mi * float32(pt.GetFrequency())
         pt.SetMI(mi)
         pt.SetScore(score)
-
+        
+        fmt.Println(key, mi, score)
         o.pairMap[key] = pt
     }
+}
+
+func (o *Occurrence) GetPairTerms(score float32) []*term.PairTerm {
+    pairTerms := make([]*term.PairTerm, 0)
+    sortTerms := o.sort()
+
+    for i, size := 0, len(sortTerms); i < size; i++ {
+        if sortTerms[i].GetScore() > score {
+            
+            pairTerms = append(pairTerms, &sortTerms[i])
+        }
+    }
+/*
+    for _, t := range sortTerms {
+        if t.GetScore() > score {
+            fmt.Println(t)
+            pairTerms = append(pairTerms, t)
+        }
+    }
+  */  
+    return pairTerms
 }
 
 func (o *Occurrence) OutputSegments(segments []*segment.Segment) {
@@ -157,12 +185,12 @@ func (o *Occurrence) Output() {
         outBuf.WriteString(str)
     }
 
-    //for key, pt := range o.pairMap {
-    //    str := fmt.Sprintf(format, key, pt.First(), pt.Second(), pt.GetMI())
-    //    outBuf.WriteString(str)
-    //}
+    for key, pt := range o.pairMap {
+        str := fmt.Sprintf(format, key, pt.First(), pt.Second(), pt.GetMI())
+        outBuf.WriteString(str)
+    }
 
-    //fmt.Println(str)
+    fmt.Println(outBuf.String())
     util.WriteFile("../data/data.log", outBuf.String())
 }
 
