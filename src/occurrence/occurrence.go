@@ -8,6 +8,8 @@ import (
     "bytes"
     "sort"
 	"segment"
+    "strings"
+    "math"
     //"dict"
     //"github.com/huichen/sego"
 )
@@ -18,9 +20,11 @@ const (
 
 type Occurrence struct {
    pairMap map[string]*term.PairTerm
+   tripleMap map[string]*term.TripleTerm
    wordCountMap map[string] int
    totalTerm int
    totalPair int
+   totalTriple int
 }
 
 func (o *Occurrence) statistics(segments []*segment.Segment) {
@@ -62,7 +66,7 @@ func (o *Occurrence) addPair(segments []*segment.Segment) {
     
     var first, second *segment.Segment
     for i, count := 1, len(segments); i < count; i++ {
-        fmt.Println(i)
+        //fmt.Println(i)
         first = segments[i - 1]
         second = segments[i]
         
@@ -77,9 +81,9 @@ func (o *Occurrence) addPair(segments []*segment.Segment) {
         secondKey := second.Text()
         key := firstKey+secondKey
         
-        if v, ok := o.pairMap[key]; ok {
-            v.Increase()
-            o.pairMap[key] = v 
+        if t, ok := o.pairMap[key]; ok {
+            t.Increase()
+            o.pairMap[key] = t 
         }else{
             pt := term.NewPairTerm(key, firstKey, secondKey)
             o.pairMap[key] = pt
@@ -87,6 +91,104 @@ func (o *Occurrence) addPair(segments []*segment.Segment) {
 
         o.totalPair++
     }
+}
+
+func (o *Occurrence) addTriple(segments []*segment.Segment) {
+    var first, second, third *segment.Segment
+    for i, count := 2, len(segments); i < count; i++ {
+        first = segments[i - 2]
+        second = segments[i - 1]
+        third = segments[i]
+
+        if first.End() != second.Start() && second.End() != third.Start() {
+            continue
+        }
+        
+        firstKey := first.Text()
+        secondKey := second.Text()
+        thirdKey := third.Text()
+        key := firstKey+secondKey+thirdKey
+        
+        if t, ok := o.tripleMap[key]; ok {
+            t.Increase()
+            o.tripleMap[key] = t 
+        }else{
+            t := term.NewTripleTerm(key, firstKey, secondKey, thirdKey)
+            o.tripleMap[key] = t
+        }
+    }
+}
+
+func (o *Occurrence) computeEntropy(word string) (le, re float32) {
+    leftWordMap := make(map[string]int)
+    rightWordMap := make(map[string]int)
+    
+    wordFreq := 1
+    pt, yes := o.pairMap[word]
+    if yes {
+        wordFreq = pt.GetFrequency()
+    }
+
+    wordProb := float32(wordFreq) / float32(o.totalPair)
+    for k, t := range o.tripleMap {
+        pos := strings.Index(k, word)
+        if pos == 0 {
+            //left, right word is the third one
+            right := t.Third()
+            if _, ok := rightWordMap[right]; !ok {
+                rightWordMap[right] = 1
+            } else {
+                rightWordMap[right] = rightWordMap[right] + 1
+            }
+            
+        } else if pos > 0 {
+            //right, left word is the first one
+            left := t.First()
+            if _, ok := leftWordMap[left]; !ok {
+                leftWordMap[left] = 1
+            } else {
+                leftWordMap[left] = leftWordMap[left] + 1
+            }
+
+        } else {
+            //nothing
+        }
+    }
+    
+    
+    for k, _ := range leftWordMap {
+        tripleWord := k + word
+        tripleFreq := 1
+        if tt, ok := o.tripleMap[tripleWord]; ok {
+            tripleFreq = tt.GetFrequency()
+        }
+
+        //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
+        //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
+        tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
+        p := float64(tripleProb / wordProb)
+        entropy := -1 * p * math.Log2(p)
+
+        le += float32(entropy)
+    }
+
+    for k, _ := range rightWordMap {
+        tripleWord := word + k
+        tripleFreq := 1
+        if tt, ok := o.tripleMap[tripleWord]; ok {
+            tripleFreq = tt.GetFrequency()
+        }
+
+        //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
+        //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
+        tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
+        p := float64(tripleProb / wordProb)
+        entropy := -1 * p * math.Log2(p)
+
+        re += float32(entropy)
+    }
+
+    return
 }
 
 func (o *Occurrence) sort() []term.PairTerm {
@@ -99,6 +201,15 @@ func (o *Occurrence) sort() []term.PairTerm {
 
     sort.Sort(term.PairTermSlice(pairTerms))
     return pairTerms
+}
+
+func (o *Occurrence) calcScore(pt *term.PairTerm) float32 {
+    multipier := float32(len(pt.GetKey())) * 0.8
+
+    score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
+    
+    //fmt.Println("m: ", multipier, " mi: ", pt.GetMI(), " score: ", score)
+    return score
 }
 
 func (o *Occurrence) AddSegments(segments []*segment.Segment, minFreq int) {
@@ -129,11 +240,12 @@ func (o *Occurrence) Compute() {
         keyFirstP := stats.Probability(firstTotal, o.totalTerm)
         keySecondP := stats.Probability(secondTotal, o.totalTerm)
         mi := stats.CalcMI(keyP, keyFirstP, keySecondP)
-        score := mi * float32(pt.GetFrequency())
         pt.SetMI(mi)
+
+        score := o.calcScore(pt)
         pt.SetScore(score)
         
-        fmt.Println(key, mi, score)
+        //fmt.Println(key, mi, score)
         o.pairMap[key] = pt
     }
 }
@@ -197,9 +309,12 @@ func (o *Occurrence) Output() {
 func NewOccurrence() *Occurrence{
     o := new(Occurrence)
     o.pairMap = make(map[string]*term.PairTerm)
+    o.tripleMap = make(map[string]*term.TripleTerm)
     o.wordCountMap = make(map[string]int)
+
     o.totalTerm = 0
     o.totalPair = 0
+    o.totalTriple = 0
 
     return o
 }

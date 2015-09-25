@@ -39,8 +39,8 @@ func NewSegment(text string, start int, end int) *Segment {
 }
 
 func (s *Segment) ToString() string {
-    format := "%d\t%d\t%s\n"
-    return fmt.Sprintf(format, s.start, s.end, s.text)
+    format := "%d\t%d\t%s\t%v\n"
+    return fmt.Sprintf(format, s.start, s.end, s.text, []rune(s.text))
 }
 
 func GetSegmentStr(segments []*Segment) string {

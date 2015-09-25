@@ -70,9 +70,15 @@ func Test_Merge125(t *testing.T) {
 
     article := util.ReadFile("../data/testdata/125.txt")
     allsegs := segment.SegmentDoc(article, sign, d)
+    str := segment.GetSegmentStr(allsegs)
+    util.WriteFile("../data/test-125-segment-all.log", str)
+
     allsegs = occurrence.FilterSegment(allsegs, stop) 
+
+    str = segment.GetSegmentStr(allsegs)
+    util.WriteFile("../data/test-125-segment-filter.log", str)
     
     pairTerms := occurrence.Merge(allsegs, 4, 15.0)
-    str := term.GetPairTermStr(pairTerms)
+    str = term.GetPairTermStr(pairTerms)
     util.WriteFile("../data/test-125-merge-merge.log", str)
 }

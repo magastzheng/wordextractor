@@ -16,7 +16,14 @@ type PairTerm struct {
     first string
     second string
     mi float32
+    le float32
+    re float32
     score float32
+}
+
+type TripleTerm struct {
+    PairTerm
+    third string
 }
 
 type PairTermSlice []PairTerm
@@ -64,6 +71,22 @@ func (pt *PairTerm) SetMI(mi float32) {
     pt.mi = mi
 }
 
+func (pt *PairTerm) GetLE() float32 {
+    return pt.le
+}
+
+func (pt *PairTerm) SetLE(le float32) {
+    pt.le = le
+}
+
+func (pt *PairTerm) GetRE() float32 {
+    return pt.re
+}
+
+func (pt *PairTerm) SetRE(re float32) {
+    pt.re = re
+}
+
 func (pt *PairTerm) GetScore() float32 {
     return pt.score
 }
@@ -86,6 +109,10 @@ func (pts PairTermSlice) Less(i, j int) bool {
     return pts[j].GetScore() < pts[i].GetScore()
 }
 
+func (tp *TripleTerm) Third() string {
+    return tp.third
+}
+
 func NewTerm(key string) *Term {
     return &Term {
         key: key,
@@ -100,15 +127,25 @@ func NewPairTerm(key string, first, second string) *PairTerm {
         first: first,
         second: second,
         mi: 0.0,
+        le: 0.0,
+        re: 0.0,
         score: 0.0,
     }
 }
 
+func NewTripleTerm(key string, first, second, third string) *TripleTerm {
+    pt := NewPairTerm(key, first, second)
+    return &TripleTerm {
+        PairTerm: *pt,
+        third: third,
+    }
+}
+
 func GetPairTermStr(pairTerms []*PairTerm) string {
-    format := "%s\t%s\t%s\t%d\n"
+    format := "%s\t%s\t%s\t%d\t%d\t%f\t%f\n"
     str := ""
     for _, pt := range pairTerms {
-        s := fmt.Sprintf(format, pt.key, pt.first, pt.second, pt.frequency)
+        s := fmt.Sprintf(format, pt.key, pt.first, pt.second, pt.frequency, len(pt.key), pt.mi, pt.score)
         str += s
         //fmt.Print(s)
     }

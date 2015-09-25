@@ -5,6 +5,12 @@ import (
     "segment"
     "term"
     "dict"
+    //"unicode"
+    "regexp"
+)
+
+const (
+    CNSpace = string(rune(12288))
 )
 
 func IsPairTerm(key string, pairTerms []*term.PairTerm) bool {
@@ -17,10 +23,30 @@ func IsPairTerm(key string, pairTerms []*term.PairTerm) bool {
     return false
 }
 
+func IsSpace(key string) bool {
+    if key == CNSpace {
+        return true
+    } else if isSpace, _ := regexp.MatchString("[\\s]+", key); isSpace {
+        return true
+    }
+
+    return false
+}
+
 func FilterSegment(segments []*segment.Segment, stopdict *dict.Sign) []*segment.Segment {
     newSegs := make([]*segment.Segment, 0)
     for _, seg := range segments {
 		key := seg.Text()
+        
+        if IsSpace(key) {
+            continue
+        }
+
+        match, _ := regexp.MatchString("[\\d]+", key)
+        if match {
+            continue
+        }
+
         if !stopdict.IsContain(key) {
             newSegs = append(newSegs, seg)
         }
@@ -77,14 +103,14 @@ func MergeOnce(segments []*segment.Segment, minFreq int, minScore float32) []*te
 func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.PairTerm {
     pairTerms := make([]*term.PairTerm, 0)
     for {
-         if minFreq < 3 {
-            break
-         }
-
          terms := MergeOnce(segments, minFreq, minScore)
          pairTerms = append(pairTerms, terms ...)
          minFreq--
          minScore = 0.8 * minScore
+
+         if minFreq < 3 {
+            break
+         }
          segments = MergeSegment(segments, pairTerms)
     }
 
