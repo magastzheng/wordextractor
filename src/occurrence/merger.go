@@ -1,7 +1,7 @@
 package occurrence
 
 import (
-    "fmt"
+    //"fmt"
     "segment"
     "term"
     "dict"
@@ -57,7 +57,7 @@ func FilterSegment(segments []*segment.Segment, stopdict *dict.Sign) []*segment.
 
 func MergeSegment(segments []*segment.Segment, pairTerms []*term.PairTerm) []*segment.Segment {
     newSegments := make([]*segment.Segment, 0)
-    fmt.Println("Merger start=====", len(segments))
+    //fmt.Println("Merger start=====", len(segments))
     var first, second *segment.Segment
     i, count := 1, len(segments);
     for {
@@ -108,7 +108,7 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
          pairTerms = append(pairTerms, terms ...)
          minFreq--
          minScore = 0.8 * minScore
-         times++   
+         times *= 2   
 
          if minFreq < 3 {
             break

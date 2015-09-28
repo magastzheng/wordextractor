@@ -221,7 +221,7 @@ func (o *Occurrence) calcScore(times int, pt *term.PairTerm) float32 {
     //score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
     score := pt.GetMI() + pt.GetLE() + pt.GetRE()    
     score = score * multipier * float32(times)
-    fmt.Println(pt.GetKey(), "m: ", multipier, " mi: ", pt.GetMI(), "LE: ", pt.GetLE(), "RE: ", pt.GetRE(), " score: ", score)
+    //fmt.Println(pt.GetKey(), "multipier: ", multipier, " mi: ", pt.GetMI(), "LE: ", pt.GetLE(), "RE: ", pt.GetRE(), " score: ", score, " times: ", times)
 
     return score
 }
@@ -242,7 +242,7 @@ func (o *Occurrence) Compute(times int) {
     var totalMI, totalLE, totalRE float32
     var ok bool
 
-    fmt.Println("Compute: ", len(o.pairMap))
+    //fmt.Println("Compute: ", len(o.pairMap))
     for key, pt := range o.pairMap {
         keyTotal = pt.GetFrequency()
         if firstTotal, ok = o.wordCountMap[pt.First()]; !ok {
