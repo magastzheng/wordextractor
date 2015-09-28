@@ -24,13 +24,13 @@ func Test_Occurrence_Compute(t *testing.T){
 	
 	sign := dict.NewSign("../data/dictionary/sign.txt")
     d := dict.NewDictionary("../data/dictionary/sogoudictionary.txt")
-	stop := dict.NewSign("../data/dictionary/stopwords.txt.txt")
+	//stop := dict.NewSign("../data/dictionary/stopwords.txt.txt")
     //segments := segmenter.Segment(buf)
 	segments := segment.SegmentDoc(string(buf), sign, d)
     fmt.Println(len(segments))
     LogSegments(segments)
     occur := occurrence.NewOccurrence()
-    occur.AddSegments(segments)
+    occur.AddSegments(segments, 3)
     occur.Compute()
     occur.Output()
 }

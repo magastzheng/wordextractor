@@ -116,13 +116,17 @@ func (o *Occurrence) addTriple(segments []*segment.Segment) {
             t := term.NewTripleTerm(key, firstKey, secondKey, thirdKey)
             o.tripleMap[key] = t
         }
+
+        o.totalTriple++
     }
 }
 
 func (o *Occurrence) computeEntropy(word string) (le, re float32) {
     leftWordMap := make(map[string]int)
     rightWordMap := make(map[string]int)
-    
+    le = 0.0
+    re = 0.0
+
     wordFreq := 1
     pt, yes := o.pairMap[word]
     if yes {
@@ -162,7 +166,8 @@ func (o *Occurrence) computeEntropy(word string) (le, re float32) {
         if tt, ok := o.tripleMap[tripleWord]; ok {
             tripleFreq = tt.GetFrequency()
         }
-
+        
+        //fmt.Println("leftWordMap: ", k, tripleFreq)
         //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
         //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
         tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
@@ -178,15 +183,21 @@ func (o *Occurrence) computeEntropy(word string) (le, re float32) {
         if tt, ok := o.tripleMap[tripleWord]; ok {
             tripleFreq = tt.GetFrequency()
         }
-
+        
+        //fmt.Println("rightWordMap: ", k, tripleFreq, o.totalTriple)
         //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
         //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
         tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
         p := float64(tripleProb / wordProb)
         entropy := -1 * p * math.Log2(p)
-
+        
+        //fmt.Println(entropy)
         re += float32(entropy)
     }
+    
+    //format := "Key: %s\t\t wordProb: %f\t le: %f\t re: %f \n"
+    //s := fmt.Sprintf(format, word, wordProb, le, re)
+    //fmt.Println(s)
 
     return
 }
@@ -206,9 +217,11 @@ func (o *Occurrence) sort() []term.PairTerm {
 func (o *Occurrence) calcScore(pt *term.PairTerm) float32 {
     multipier := float32(len(pt.GetKey())) * 0.8
 
-    score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
-    
+    //score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
+    score := pt.GetMI() + pt.GetLE() + pt.GetRE()    
+    score = score * multipier
     //fmt.Println("m: ", multipier, " mi: ", pt.GetMI(), " score: ", score)
+
     return score
 }
 
@@ -219,6 +232,7 @@ func (o *Occurrence) AddSegments(segments []*segment.Segment, minFreq int) {
     //o.OutputSegments(newsegs)
     //fmt.Println(newsegs[0])
     o.addPair(newsegs)
+    o.addTriple(newsegs)
 }
 
 func (o *Occurrence) Compute() {
@@ -241,11 +255,15 @@ func (o *Occurrence) Compute() {
         keySecondP := stats.Probability(secondTotal, o.totalTerm)
         mi := stats.CalcMI(keyP, keyFirstP, keySecondP)
         pt.SetMI(mi)
+        
+        le, re := o.computeEntropy(key)
+        pt.SetLE(le)
+        pt.SetRE(re)
 
         score := o.calcScore(pt)
         pt.SetScore(score)
         
-        //fmt.Println(key, mi, score)
+        //fmt.Println(key, mi, le, re, score)
         o.pairMap[key] = pt
     }
 }
@@ -288,21 +306,22 @@ func (o *Occurrence) OutputSegments(segments []*segment.Segment) {
 func (o *Occurrence) Output() {
 
     outBuf := bytes.NewBufferString("Output words: \n")
-    format := "Key: %v\t\tFirst: %v\t\t Second: %v\t\t Freq: %v mi: %v score: %v\n"
+    format := "Key: %v\t\tFirst: %v\t\t Second: %v\t\t Freq: %v mi: %f le: %f re: %f score: %v\n"
 
     terms := o.sort()
     for _, t := range terms {
         key := t.First() + t.Second()
-        str := fmt.Sprintf(format, key, t.First(), t.Second(), t.GetFrequency(), t.GetMI(), t.GetScore())
+        str := fmt.Sprintf(format, key, t.First(), t.Second(), t.GetFrequency(), t.GetMI(), t.GetLE(), t.GetRE(), t.GetScore())
         outBuf.WriteString(str)
     }
-
+    
+    outBuf.WriteString("========================PairMap===================\n")
     for key, pt := range o.pairMap {
-        str := fmt.Sprintf(format, key, pt.First(), pt.Second(), pt.GetMI())
+        str := fmt.Sprintf(format, key, pt.First(), pt.Second(), pt.GetFrequency(), pt.GetMI(), pt.GetLE(), pt.GetRE(), pt.GetScore())
         outBuf.WriteString(str)
     }
 
-    fmt.Println(outBuf.String())
+    //fmt.Println(outBuf.String())
     util.WriteFile("../data/data.log", outBuf.String())
 }
 
