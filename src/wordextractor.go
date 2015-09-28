@@ -12,12 +12,14 @@ import(
     "strings"
     //"os/exec"
     "flag"
+    mahonia "github.com/axgle/mahonia"
 )
 
 const (
     SignDictionary = "data/dictionary/sign.txt"
     StopDictionary = "data/dictionary/stopwords.txt"
     NormalDictionary = "data/dictionary/sogoudictionary.txt"
+    Encoding = "gb18030"
 )
 
 type FilePath struct {
@@ -57,11 +59,16 @@ func main() {
 
 func handlePath(root string) {
     ws := NewWordSetting()
+    decoder := mahonia.NewDecoder(Encoding)
     files := getFilePath(root)
     for _, f := range files {
         fullfilepath := filepath.Join(f.folder, f.filename)
         fmt.Println("Handle the file: ", fullfilepath)
         content := util.ReadFile(fullfilepath)
+        //if ret, ok := decoder.ConvertStringOK(content); ok {
+        //    content = ret
+        //}
+        content = decoder.ConvertString(content)
         pairTerm := getWords(content, ws)
         writeOutput(f, pairTerm)
     }
@@ -121,11 +128,12 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     
     fmt.Println("Total words: ", len(pairTerms))
     format := "%s,%d,%f\n"
-    str := ""
+    str := "短语,频率,分数\n"
     for _, pt := range pairTerms {
         str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
     }
-
+    encoder := mahonia.NewEncoder(Encoding)
+    str = encoder.ConvertString(str)
     util.WriteFile(outfile, str)
     fmt.Println("Store the word in: ", outfile)
 }
