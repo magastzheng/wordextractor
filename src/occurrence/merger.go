@@ -1,7 +1,7 @@
 package occurrence
 
 import (
-    //"fmt"
+    "fmt"
     "segment"
     "term"
     "dict"
@@ -105,6 +105,7 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
     times := 1
     for {
          terms := MergeOnce(segments, minFreq, minScore, times)
+         fmt.Println("Each merge total terms: ", len(terms))
          pairTerms = append(pairTerms, terms ...)
          minFreq--
          minScore = 0.8 * minScore

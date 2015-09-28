@@ -133,7 +133,7 @@ func (o *Occurrence) computeEntropy(word string) (le, re float32) {
         wordFreq = pt.GetFrequency()
     }
 
-    wordProb := float32(wordFreq) / float32(o.totalPair)
+    wordProb := float64(wordFreq / o.totalPair)
     for k, t := range o.tripleMap {
         pos := strings.Index(k, word)
         if pos == 0 {
@@ -170,7 +170,7 @@ func (o *Occurrence) computeEntropy(word string) (le, re float32) {
         //fmt.Println("leftWordMap: ", k, tripleFreq)
         //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
         //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
-        tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
+        tripleProb := stats.Normalize(float64(tripleFreq), float64(o.totalTriple))
         p := float64(tripleProb / wordProb)
         entropy := -1 * p * math.Log2(p)
 
@@ -187,7 +187,7 @@ func (o *Occurrence) computeEntropy(word string) (le, re float32) {
         //fmt.Println("rightWordMap: ", k, tripleFreq, o.totalTriple)
         //tripleProb := float32(fripleFreq) / float32(o.totalTriple)
         //tripleLE := stats.CalcEntropy(float64(fripleFreq), float64(o.totalTriple))
-        tripleProb := stats.Normalize(float32(tripleFreq), float32(o.totalTriple))
+        tripleProb := stats.Normalize(float64(tripleFreq), float64(o.totalTriple))
         p := float64(tripleProb / wordProb)
         entropy := -1 * p * math.Log2(p)
         
@@ -256,13 +256,13 @@ func (o *Occurrence) Compute(times int) {
         keyFirstP := stats.Probability(firstTotal, o.totalTerm)
         keySecondP := stats.Probability(secondTotal, o.totalTerm)
         mi := stats.CalcMI(keyP, keyFirstP, keySecondP)
-        pt.SetMI(mi)
+        pt.SetMI(float32(mi))
         
         le, re := o.computeEntropy(key)
         pt.SetLE(le)
         pt.SetRE(re)
         
-        totalMI += mi
+        totalMI += float32(mi)
         totalLE += le
         totalRE += re
         //score := o.calcScore(times, pt)

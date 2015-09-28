@@ -31,7 +31,7 @@ func Test_Occurrence_Compute(t *testing.T){
     LogSegments(segments)
     occur := occurrence.NewOccurrence()
     occur.AddSegments(segments, 3)
-    occur.Compute()
+    occur.Compute(1)
     occur.Output()
 }
 
