@@ -214,13 +214,14 @@ func (o *Occurrence) sort() []term.PairTerm {
     return pairTerms
 }
 
-func (o *Occurrence) calcScore(pt *term.PairTerm) float32 {
-    multipier := float32(len(pt.GetKey())) * 0.8
+func (o *Occurrence) calcScore(times int, pt *term.PairTerm) float32 {
+    multipier := 1.5 * float32(pt.Length() / 2)  
+    multipier *= float32(pt.GetFrequency())
 
     //score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
     score := pt.GetMI() + pt.GetLE() + pt.GetRE()    
-    score = score * multipier
-    //fmt.Println("m: ", multipier, " mi: ", pt.GetMI(), " score: ", score)
+    score = score * multipier * float32(times)
+    fmt.Println(pt.GetKey(), "m: ", multipier, " mi: ", pt.GetMI(), "LE: ", pt.GetLE(), "RE: ", pt.GetRE(), " score: ", score)
 
     return score
 }
@@ -235,9 +236,10 @@ func (o *Occurrence) AddSegments(segments []*segment.Segment, minFreq int) {
     o.addTriple(newsegs)
 }
 
-func (o *Occurrence) Compute() {
+func (o *Occurrence) Compute(times int) {
     
     var keyTotal, firstTotal, secondTotal int
+    var totalMI, totalLE, totalRE float32
     var ok bool
 
     fmt.Println("Compute: ", len(o.pairMap))
@@ -259,11 +261,29 @@ func (o *Occurrence) Compute() {
         le, re := o.computeEntropy(key)
         pt.SetLE(le)
         pt.SetRE(re)
-
-        score := o.calcScore(pt)
-        pt.SetScore(score)
+        
+        totalMI += mi
+        totalLE += le
+        totalRE += re
+        //score := o.calcScore(times, pt)
+        //pt.SetScore(score)
         
         //fmt.Println(key, mi, le, re, score)
+        o.pairMap[key] = pt
+    }
+    
+    //Normanize
+    for key, pt := range o.pairMap {
+        mi := pt.GetMI() / totalMI
+        le := pt.GetLE() / totalLE
+        re := pt.GetRE() / totalRE
+        
+        pt.SetMI(mi)
+        pt.SetLE(le)
+        pt.SetRE(re)
+        score := o.calcScore(times, pt)
+        pt.SetScore(score)
+
         o.pairMap[key] = pt
     }
 }

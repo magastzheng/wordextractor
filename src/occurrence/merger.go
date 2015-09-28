@@ -91,10 +91,10 @@ func MergeSegment(segments []*segment.Segment, pairTerms []*term.PairTerm) []*se
     return newSegments
 }
 
-func MergeOnce(segments []*segment.Segment, minFreq int, minScore float32) []*term.PairTerm {
+func MergeOnce(segments []*segment.Segment, minFreq int, minScore float32, times int) []*term.PairTerm {
     occur := NewOccurrence()
     occur.AddSegments(segments, minFreq)
-    occur.Compute()
+    occur.Compute(times)
     pairTerms := occur.GetPairTerms(minScore)
 
     return pairTerms
@@ -102,11 +102,13 @@ func MergeOnce(segments []*segment.Segment, minFreq int, minScore float32) []*te
 
 func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.PairTerm {
     pairTerms := make([]*term.PairTerm, 0)
+    times := 1
     for {
-         terms := MergeOnce(segments, minFreq, minScore)
+         terms := MergeOnce(segments, minFreq, minScore, times)
          pairTerms = append(pairTerms, terms ...)
          minFreq--
          minScore = 0.8 * minScore
+         times++   
 
          if minFreq < 3 {
             break

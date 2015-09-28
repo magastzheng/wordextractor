@@ -32,6 +32,10 @@ func (t *Term) GetKey() string {
     return t.key
 }
 
+func (t *Term) Length() int {
+    return len([]rune(t.key))
+}
+
 //set the value as newValue and return old value
 func (t *Term) SetFrequency(newValue int) int {
     oldValue := t.frequency
@@ -142,10 +146,11 @@ func NewTripleTerm(key string, first, second, third string) *TripleTerm {
 }
 
 func GetPairTermStr(pairTerms []*PairTerm) string {
-    format := "%s\t%s\t%s\t%d\t%d\t%f\t%f\n"
+    format := "Key:%s\t First:%s\t Second: %s\t Freq: %d\t Len: %d\t MI: %f\t LE:%f\t RE: %f\t Score: %f\n"
     str := ""
     for _, pt := range pairTerms {
-        s := fmt.Sprintf(format, pt.key, pt.first, pt.second, pt.frequency, len(pt.key), pt.mi, pt.score)
+        s := fmt.Sprintf(format, pt.key, pt.first, pt.second, pt.frequency, pt.Length(), pt.mi, pt.le, pt.re, pt.score)
+
         str += s
         //fmt.Print(s)
     }
