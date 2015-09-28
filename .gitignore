@@ -6,3 +6,4 @@
 *.log
 *.exe
 .DS_Store
+*.csv
