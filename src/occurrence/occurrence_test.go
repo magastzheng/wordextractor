@@ -14,7 +14,7 @@ import (
 func Test_Occurrence_Compute(t *testing.T){
     //var segmenter sego.Segmenter
     //segmenter.LoadDictionary("C:/Go/thirdpartlib/src/github.com/huichen/sego/data/dictionary.txt")
-    filename := "../data/testdata/125.txt" 
+    filename := "../data/testdata/125-2.txt" 
 
     buf, err := ioutil.ReadFile(filename)
     if err != nil {

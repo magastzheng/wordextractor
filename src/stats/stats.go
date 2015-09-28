@@ -23,8 +23,13 @@ func Normalize(value, totalValue float64) float64 {
     return value / totalValue
 }
 
+//Make value normalization
+func Probability64(value, totalValue float64) float64 {
+    return value / totalValue
+}
+
 //Calculate the probability
 func Probability(freq, totalFreq int) float64 {
-    return float64(freq / totalFreq)
+    return float64(freq) / float64(totalFreq)
 }
 
