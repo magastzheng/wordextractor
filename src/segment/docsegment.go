@@ -6,6 +6,7 @@ import (
     "strings"
     "unicode"
     "util"
+	"log"
 )
 
 type Document struct {
@@ -107,7 +108,8 @@ func SplitSentence(buf []rune, d *dict.Sign) []*Sentence {
 }
 
 func SegmentDoc(text string, sign *dict.Sign, d *dict.Dictionary) []*Segment {
-    text = DeleteSpaceChar(text)
+    log.Printf("开始分词处理...")
+	text = DeleteSpaceChar(text)
     //sign := dict.NewSign("../data/dictionary/sign.txt")
     sentences := SplitSentence([]rune(text), sign)
     //d := NewDictionary("../data/dictionary/sogoudictionary.txt")
@@ -117,6 +119,7 @@ func SegmentDoc(text string, sign *dict.Sign, d *dict.Dictionary) []*Segment {
         segments := SegmentSentenceMP(sentence.Buffer(), sentence.Start(), d)
         allsegs = append(allsegs, segments ...)
     }
-
+	
+	log.Printf("完成分词处理，总数：%d", len(allsegs))
     return allsegs
 }

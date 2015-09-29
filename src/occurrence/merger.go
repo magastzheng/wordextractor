@@ -6,6 +6,7 @@ import (
     "term"
     "dict"
     "sort"
+	"log"
     //"unicode"
     "regexp"
 )
@@ -102,6 +103,7 @@ func MergeOnce(segments []*segment.Segment, minFreq int, minScore float32, times
 }
 
 func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.PairTerm {
+	log.Printf("开始合并词语...")
     pairTerms := make([]*term.PairTerm, 0)
     times := 1
     for {
@@ -119,6 +121,9 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
     }
     
     sort.Sort(term.PairTermPtrSlice(pairTerms))
+	
+	log.Printf("完成合并词语，总数: %d", len(pairTerms))
+	
     return pairTerms
 }
 

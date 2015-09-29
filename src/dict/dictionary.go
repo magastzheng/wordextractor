@@ -36,6 +36,7 @@ func (d *Dictionary) FreqAll() int {
 
 func NewDictionary(filename string) *Dictionary {
     d := new(Dictionary)
+	log.Printf("开始加载分词字典: %s", filename)
     d.word_map = make(map[string]int)
     d.freq_all = 0
     d.size = 0
@@ -90,7 +91,10 @@ func NewDictionary(filename string) *Dictionary {
     for i := 0; i < MaxWordLength; i++ {
         d.arr_2[i] = float64(d.arr_1[i]) / float64(d.freq_all)
     }
-
+	
+	str := fmt.Sprintf("成功加载分词字典，总数: %d", d.size)
+    log.Println(str)
+	
     return d
 }
 

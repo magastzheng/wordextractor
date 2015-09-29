@@ -30,7 +30,7 @@ func NewSign(filename string) *Sign {
         signs: make([]string, 0),
     }
 
-    log.Printf("Load sign dictionary: %s", filename)
+    log.Printf("开始加载特殊字典: %s", filename)
     file, err := os.Open(filename)
     defer file.Close()
     if err != nil {
@@ -55,7 +55,7 @@ func NewSign(filename string) *Sign {
     }
     
     //fmt.Println(s.signs)
-    str := fmt.Sprintf("Finish to load sign dictionary: %d .", len(s.signs))
+    str := fmt.Sprintf("成功加载特殊字典，总数: %d", len(s.signs))
     log.Println(str)
 
     return s

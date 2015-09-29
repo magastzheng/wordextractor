@@ -12,6 +12,7 @@ import(
     "strings"
     //"os/exec"
     "flag"
+    "log"
     mahonia "github.com/axgle/mahonia"
 )
 
@@ -63,7 +64,7 @@ func handlePath(root string) {
     files := getFilePath(root)
     for _, f := range files {
         fullfilepath := filepath.Join(f.folder, f.filename)
-        fmt.Println("Handle the file: ", fullfilepath)
+        log.Printf("正在处理文件: %s", fullfilepath)
         content := util.ReadFile(fullfilepath)
         //if ret, ok := decoder.ConvertStringOK(content); ok {
         //    content = ret
@@ -80,7 +81,7 @@ func getWords(content string, ws *WordSetting) []*term.PairTerm {
     //fmt.Println(len(allsegs))
     //str := segment.GetSegmentStr(allsegs)
 
-    //util.WriteFile("../data/test-125.log", str)
+    //util.WriteFile("../data/test-segment-125.log", str)
     allsegs = occurrence.FilterSegment(allsegs, ws.stopDict)
     pairTerms := occurrence.Merge(allsegs, ws.freqDoor, ws.scoreDoor)
     //str = term.GetPairTermStr(pairTerms)
@@ -126,7 +127,7 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     //fmt.Println("Outfile name:", outfile)
     outfile = filepath.Join(file.folder, outfile)
     
-    fmt.Println("Total words: ", len(pairTerms))
+    //fmt.Println("Total words: ", len(pairTerms))
     format := "%s,%d,%f\n"
     str := "短语,频率,分数\n"
     for _, pt := range pairTerms {
@@ -137,5 +138,5 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     encoder := mahonia.NewEncoder(Encoding)
     str = encoder.ConvertString(str)
     util.WriteFile(outfile, str)
-    fmt.Println("Store the word in: ", outfile)
+    log.Printf("短语存储到文件: %s", outfile)
 }
