@@ -59,7 +59,7 @@ func FilterSegment(segments []*segment.Segment, stopdict *dict.Sign) []*segment.
 
 func MergeSegment(segments []*segment.Segment, pairTerms []*term.PairTerm) []*segment.Segment {
     newSegments := make([]*segment.Segment, 0)
-    //fmt.Println("Merger start=====", len(segments))
+
     var first, second *segment.Segment
     i, count := 1, len(segments);
     for {
@@ -113,16 +113,27 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
          minFreq--
          minScore = 0.8 * minScore
          times *= 2   
-
-         if minFreq < 3 || len(pairTerms) == 0 {
+         segments = MergeSegment(segments, pairTerms)
+		 
+		 if minFreq < 2 || len(pairTerms) == 0 {
             break
          }
-         segments = MergeSegment(segments, pairTerms)
     }
     
     sort.Sort(term.PairTermPtrSlice(pairTerms))
 	
 	log.Printf("完成合并词语，总数: %d", len(pairTerms))
+	
+	/*format := "%s,%d,%f\n"
+    str := "短语,频率,分数\n"
+    for _, pt := range pairTerms {
+        //if pt.GetFrequency() >= 1{
+            str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
+        //}
+    }
+	
+	log.Println(str)
+	*/
 	
     return pairTerms
 }

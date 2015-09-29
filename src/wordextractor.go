@@ -13,6 +13,8 @@ import(
     //"os/exec"
     "flag"
     "log"
+	"encoding/json"
+	"io/ioutil"
     mahonia "github.com/axgle/mahonia"
 )
 
@@ -20,8 +22,14 @@ const (
     SignDictionary = "data/dictionary/sign.txt"
     StopDictionary = "data/dictionary/stopwords.txt"
     NormalDictionary = "data/dictionary/sogoudictionary.txt"
+	ConfigFile = "config/config.json"
     Encoding = "gb18030"
 )
+
+type Config struct {
+	FreqDoor 	int 	`json:"freqDoor"`
+	ScoreDoor 	float32 `json:"scoreDoor"`
+}
 
 type FilePath struct {
     folder string
@@ -40,16 +48,37 @@ func NewWordSetting() *WordSetting {
     sign := dict.NewSign(SignDictionary)
     stop := dict.NewSign(StopDictionary)
     d := dict.NewDictionary(NormalDictionary)
-
+	config := LoadConfig()
+	
     s := &WordSetting {
-        freqDoor: 6,
-        scoreDoor: 0.01,
+        freqDoor: config.FreqDoor,
+        scoreDoor: config.ScoreDoor,
         signDict: sign,
         stopDict: stop,
         wordDict: d,
     }
-
+	
     return s
+}
+
+func LoadConfig() *Config {
+	c := &Config{
+		FreqDoor: 3,
+		ScoreDoor: 0.01,
+	}
+	chunks, err := ioutil.ReadFile(ConfigFile)
+    if err != nil {
+		log.Fatalf("Fail to load config file: %s", ConfigFile)
+		return c
+	}
+	
+    err = json.Unmarshal(chunks, c)
+	if err != nil {
+		log.Fatal("Fail to unmarshel config file", err)
+		return c
+	}
+	
+	return c
 }
 
 func main() {
@@ -131,10 +160,12 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     format := "%s,%d,%f\n"
     str := "短语,频率,分数\n"
     for _, pt := range pairTerms {
-        if pt.GetFrequency() > 1{
+        //if pt.GetFrequency() > 1{
             str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
-        }
+        //}
     }
+	
+	//fmt.Println(str)
     encoder := mahonia.NewEncoder(Encoding)
     str = encoder.ConvertString(str)
     util.WriteFile(outfile, str)

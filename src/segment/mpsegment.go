@@ -145,7 +145,6 @@ func getTempWords(runeBuf []rune, d *dict.Dictionary) []*Candidate {
         }
     }
     
-    //fmt.Println("Total candidates: ", len(vec_cd))
     return vec_cd
 }
 
@@ -160,7 +159,7 @@ func getPrev(vec_cd []*Candidate) {
             vec_cd[i].SumFee = vec_cd[i].Fee
         }else{
             min_id = -1
-            //j = i - 1
+
             for j = i - 1; j >= 0; j-- {
                 //Find all the preview word in the left
                 if vec_cd[j].Start + vec_cd[j].Length == vec_cd[i].Start {
@@ -288,14 +287,6 @@ func SegmentSentenceMP(buf []rune, pos int, d *dict.Dictionary) []*Segment {
 
         segments[i] = seg
     }
-    
-    //final := ""
-    //for _, seg := range segments {
-    //    final += seg.ToString()
-    //}
-    
-    //final += fmt.Sprintf(": %d", len(segments))
-    //util.WriteFile("../data/origin_all_after_final.log", final)
 
     return segments
 }
