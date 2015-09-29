@@ -29,6 +29,7 @@ const (
 type Config struct {
 	FreqDoor 	int 	`json:"freqDoor"`
 	ScoreDoor 	float32 `json:"scoreDoor"`
+	OutputFreq	int		`json:"outputFreq"`
 }
 
 type FilePath struct {
@@ -39,6 +40,7 @@ type FilePath struct {
 type WordSetting struct {
     freqDoor int
     scoreDoor float32
+	outputFreq int
     signDict *dict.Sign
     stopDict *dict.Sign
     wordDict *dict.Dictionary
@@ -53,6 +55,7 @@ func NewWordSetting() *WordSetting {
     s := &WordSetting {
         freqDoor: config.FreqDoor,
         scoreDoor: config.ScoreDoor,
+		outputFreq: config.OutputFreq,
         signDict: sign,
         stopDict: stop,
         wordDict: d,
@@ -65,6 +68,7 @@ func LoadConfig() *Config {
 	c := &Config{
 		FreqDoor: 3,
 		ScoreDoor: 0.01,
+		OutputFreq: 0,
 	}
 	chunks, err := ioutil.ReadFile(ConfigFile)
     if err != nil {
@@ -84,7 +88,11 @@ func LoadConfig() *Config {
 func main() {
     flag.Parse()
     root := flag.Arg(0)
-    handlePath(root)
+	if len(root) == 0 {
+		log.Printf("请输入一个有效文件")
+	} else {
+		handlePath(root)
+	}
 }
 
 func handlePath(root string) {
@@ -100,7 +108,7 @@ func handlePath(root string) {
         //}
         content = decoder.ConvertString(content)
         pairTerm := getWords(content, ws)
-        writeOutput(f, pairTerm)
+        writeOutput(f, pairTerm, ws.outputFreq)
     }
 }
 
@@ -148,7 +156,7 @@ func getFilePath(root string) []*FilePath {
     return files
 }
 
-func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
+func writeOutput(file *FilePath, pairTerms []*term.PairTerm, outputFreq int) {
     ext := filepath.Ext(file.filename)
     pos := strings.Index(file.filename, ext)
     base := string(file.filename[:pos])
@@ -160,9 +168,9 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     format := "%s,%d,%f\n"
     str := "短语,频率,分数\n"
     for _, pt := range pairTerms {
-        //if pt.GetFrequency() > 1{
+        if pt.GetFrequency() > outputFreq{
             str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
-        //}
+        }
     }
 	
 	//fmt.Println(str)

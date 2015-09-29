@@ -68,7 +68,7 @@ func (o *Occurrence) addPair(segments []*segment.Segment) {
 		firstKey := first.Text()
         secondKey := second.Text()
         key := firstKey+secondKey
-        
+
         if t, ok := o.pairMap[key]; ok {
             t.Increase()
             o.pairMap[key] = t 
@@ -196,11 +196,11 @@ func (o *Occurrence) sort() []term.PairTerm {
 }
 
 func (o *Occurrence) calcScore(times int, pt *term.PairTerm) float32 {
-    multipier := 1.5 * float32(pt.Length() / 2)  
+    multipier := 1.5 * float32(pt.Length()) 
     multipier *= float32(pt.GetFrequency())
 
     //score := pt.GetMI() * float32(pt.GetFrequency()) * float32(multipier)
-    score := pt.GetMI() + pt.GetLE() + pt.GetRE()    
+    score := 2.5 * pt.GetMI() + pt.GetLE() + pt.GetRE()    
     score = score * multipier * float32(times)
     //fmt.Println(pt.GetKey(), "multipier: ", multipier, " mi: ", pt.GetMI(), "LE: ", pt.GetLE(), "RE: ", pt.GetRE(), " score: ", score, " times: ", times)
 

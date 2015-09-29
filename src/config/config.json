@@ -1,4 +1,5 @@
 {
 	"freqDoor": 2,
-	"scoreDoor": 0.01
+	"scoreDoor": 0.001,
+	"outputFreq": 0
 }
