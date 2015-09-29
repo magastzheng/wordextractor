@@ -27,6 +27,7 @@ type TripleTerm struct {
 }
 
 type PairTermSlice []PairTerm
+type PairTermPtrSlice []*PairTerm
 
 func (t *Term) GetKey() string {
     return t.key
@@ -111,6 +112,21 @@ func (pts PairTermSlice) Less(i, j int) bool {
     //return pts[j].GetMI() < pts[i].GetMI()
     
     return pts[j].GetScore() < pts[i].GetScore()
+}
+
+
+func (ptps PairTermPtrSlice) Len() int {
+    return len(ptps)
+}
+
+func (ptps PairTermPtrSlice) Swap(i, j int) {
+    ptps[i], ptps[j] = ptps[j], ptps[i]
+}
+
+func (ptps PairTermPtrSlice) Less(i, j int) bool {
+    //return pts[j].GetMI() < pts[i].GetMI()
+    
+    return ptps[j].GetScore() < ptps[i].GetScore()
 }
 
 func (tp *TripleTerm) Third() string {

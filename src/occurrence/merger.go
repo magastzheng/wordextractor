@@ -5,6 +5,7 @@ import (
     "segment"
     "term"
     "dict"
+    "sort"
     //"unicode"
     "regexp"
 )
@@ -116,6 +117,8 @@ func Merge(segments []*segment.Segment, minFreq int, minScore float32) []*term.P
          }
          segments = MergeSegment(segments, pairTerms)
     }
-
+    
+    sort.Sort(term.PairTermPtrSlice(pairTerms))
     return pairTerms
 }
+

@@ -130,7 +130,9 @@ func writeOutput(file *FilePath, pairTerms []*term.PairTerm) {
     format := "%s,%d,%f\n"
     str := "短语,频率,分数\n"
     for _, pt := range pairTerms {
-        str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
+        if pt.GetFrequency() > 1{
+            str += fmt.Sprintf(format, pt.GetKey(), pt.GetFrequency(), pt.GetScore())
+        }
     }
     encoder := mahonia.NewEncoder(Encoding)
     str = encoder.ConvertString(str)
