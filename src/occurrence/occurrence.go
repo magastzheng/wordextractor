@@ -46,7 +46,7 @@ func (o *Occurrence) filterSegment(segments []*segment.Segment, door int) []*seg
     for _, seg := range segments {
 		key := seg.Text()
         count, ok := o.wordCountMap[key]
-        if ok && count > door{
+        if ok && count >= door{
             newSegs = append(newSegs, seg)
         }
     }
